@@ -1,6 +1,10 @@
 # Learning
 
-This is a repository of non-code stuff that I use to share across multiple computers. Feel free to browse my Coursera course notes and anything else you see here.
+This is a repository of stuff that I use to share across multiple computers. It contains examples of what I'm working on to get better. Feel free to browse my Coursera course notes and anything else you see here.
+
+## titanic
+
+There's data set on Kaggle; the morbid goal is to predict survivors in the test set. As of 11/10/20, I scored in the 96.7th percentile with ~.799 accuracy. You can see the development of features and models in the .ipynb here.
 
 ## newgroups
 
