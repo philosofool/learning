@@ -130,3 +130,6 @@ dmypy.json
 
 # pickles
 .pickle
+
+# Visual Studio Files
+.vscode
