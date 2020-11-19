@@ -93,21 +93,22 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
     '''
     Trains a model with multiple batch sizes to find a batch size that is fast.
 
-    Parameters: model is the model to test, X is training data, y is training labels,
+    Parameters: 
+    model is the model to test, X is training data, y is training labels,
     sizes is an interable of integers to run as batch sizes. reset_state (optional, 
     def = True) determines whether the model's state is reset after each training batch. Epochs
-    (optinal, def = 1) is the number of epochs to train on to determine the amount of time taken.
+    (optional, def = 1) is the number of epochs to train on to determine the amount of time taken.
     Verbose: what verbose mode to run fit in (optional, default = 1)
     '''
     results_dict = {x : np.Inf for x in sizes}
-    model.save_weights('batch_size_testing.h5')
+    init_weights = model.get_weights()
     for batch_size in sizes:
         print("Testing batch size {} over {} epochs".format(batch_size,epochs))
         start = time.time()
         model.fit(X, y, batch_size=batch_size, verbose = verbose, epochs=epochs)
         end = time.time()
         if reset_states:
-            model.load_weights('batch_size_testing.h5')
+            model.set_weights(init_weights)
         results_dict[batch_size] = end - start
-    os.remove('batch_size_testing.h5')
+    
     return results_dict
