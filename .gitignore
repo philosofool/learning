@@ -132,4 +132,5 @@ dmypy.json
 .pickle
 
 # Visual Studio Files
+.vscode/
 .vscode
