@@ -5,6 +5,33 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 
+def load_kaggle_mnist(data_file_name='data/train.csv', 
+                        dev_size=2000, 
+                        test_size=2000,
+                        random_state = None):
+    '''
+    Returns a tupple of train/dev/test splits of the labeled Kaggle MNIST data.
+
+    Returns: tuple
+    -------
+        A tuple of form ((X_train, y_train), (X_dev, y_dev), (X_test, y_test))
+    '''
+    df = pd.read_csv(data_file_name)
+    hold_df = df.sample(n=dev_size+test_size, random_state=random_state)
+    dev_df = hold_df.sample(n=dev_size, random_state=random_state)
+    test_df = hold_df.drop(dev_df.index)
+    train_df = df.drop(hold_df.index)
+    return (df_split_to_numpy(train_df), df_split_to_numpy(dev_df), df_split_to_numpy(test_df))
+
+def df_split_to_numpy(df, target_label='label'):
+    '''
+    Returns a tuple of numpy arrays of form (Features, labels) a Pandas DataFrame.
+
+    Useful as a helper function when you need to make several splits.
+    '''
+    X = df.drop(target_label, axis = 1).to_numpy()
+    y = df['label'].to_numpy()
+    return (X, y)
 
 def history_plot(history, start_epoch = 0, end_epoch = None):
     '''
@@ -66,21 +93,22 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
     '''
     Trains a model with multiple batch sizes to find a batch size that is fast.
 
-    Parameters: model is the model to test, X is training data, y is training labels,
+    Parameters: 
+    model is the model to test, X is training data, y is training labels,
     sizes is an interable of integers to run as batch sizes. reset_state (optional, 
     def = True) determines whether the model's state is reset after each training batch. Epochs
-    (optinal, def = 1) is the number of epochs to train on to determine the amount of time taken.
+    (optional, def = 1) is the number of epochs to train on to determine the amount of time taken.
     Verbose: what verbose mode to run fit in (optional, default = 1)
     '''
     results_dict = {x : np.Inf for x in sizes}
-    model.save_weights('batch_size_testing.h5')
+    init_weights = model.get_weights()
     for batch_size in sizes:
         print("Testing batch size {} over {} epochs".format(batch_size,epochs))
         start = time.time()
         model.fit(X, y, batch_size=batch_size, verbose = verbose, epochs=epochs)
         end = time.time()
         if reset_states:
-            model.load_weights('batch_size_testing.h5')
+            model.set_weights(init_weights)
         results_dict[batch_size] = end - start
-    os.remove('batch_size_testing.h5')
+    
     return results_dict
