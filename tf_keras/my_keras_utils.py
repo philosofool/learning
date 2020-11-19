@@ -5,6 +5,33 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 
+def load_kaggle_mnist(data_file_name='data/train.csv', 
+                        dev_size=2000, 
+                        test_size=2000,
+                        random_state = None):
+    '''
+    Returns a tupple of train/dev/test splits of the labeled Kaggle MNIST data.
+
+    Returns: tuple
+    -------
+        A tuple of form ((X_train, y_train), (X_dev, y_dev), (X_test, y_test))
+    '''
+    df = pd.read_csv(data_file_name)
+    hold_df = df.sample(n=dev_size+test_size, random_state=random_state)
+    dev_df = hold_df.sample(n=dev_size, random_state=random_state)
+    test_df = hold_df.drop(dev_df.index)
+    train_df = df.drop(hold_df.index)
+    return (df_split_to_numpy(train_df), df_split_to_numpy(dev_df), df_split_to_numpy(test_df))
+
+def df_split_to_numpy(df, target_label='label'):
+    '''
+    Returns a tuple of numpy arrays of form (Features, labels) a Pandas DataFrame.
+
+    Useful as a helper function when you need to make several splits.
+    '''
+    X = df.drop(target_label, axis = 1).to_numpy()
+    y = df['label'].to_numpy()
+    return (X, y)
 
 def history_plot(history, start_epoch = 0, end_epoch = None):
     '''
