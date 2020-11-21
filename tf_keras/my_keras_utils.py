@@ -1,6 +1,7 @@
 import time
 import os
 import IPython
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -120,7 +121,7 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
 
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
   def on_train_end(*args, **kwargs):
-    IPython.display.clear_output(wait = False)
+    IPython.display.clear_output(wait = True)
 
 class TimedProgressUpdate(keras.callbacks.Callback):
     '''
