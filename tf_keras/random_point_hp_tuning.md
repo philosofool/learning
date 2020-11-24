@@ -24,7 +24,7 @@ But, following a comment by Andrew Ng from his DeeplearningAI course, searching 
 ## Define a function that finds numbers in range 10^(-3x-1)
 
 alpha_choice = (lambda x: 10**(-3*x)/10) 
-
+n = 25 ## Let's sample 25 models from the space.
 for i in range(0,n):
 
     ## generate a random number x on the interval (1e-4,1e-1)
@@ -45,15 +45,35 @@ for i in range(0,n):
 
  ## Can we implement this with Keras tuner
 
- Yes we can! Do to so, we need to subclass ```kerastuner.engine.hyperparameters.HyperParameters()```. Our sytax to use it will be:
+ Yes we can! The process looks a little different from above. Above, we randomly select numbers from a space and build the models with those random numbers. Keras builds the space of models first and then selects a tuning process to apply to those models. The RandomSearch tuner will implement the above process by randomly selecting the models. 
+
+### Example with Keras Tuner
+
+ Imagine a relatively simple example in which we're tuning a single layer with L2 regularization and we want to tune the number of units in the layer and the L2 alpha. The inputs have 784 features. We can construct a model builder like this:
+
  ```
- HyperParameters.RandSpace(name,func,count,d_type='float',parent_name,parent_values)
- ```
+from tensorflow import keras
+from tensorflow.keras import layers
+import kerastuner as kt
+
+ ## specify a large range with a suitable distribution of features.
+ hp_units = [x + 20 for x in range(100)]
+ hp_alpha = [10**(-3*(x/1000)-1) for x in range(1000)]
+```
+The last two lines generate distributions from which our hypermodel's parameters will be selected.
+```
+ ## set up a model with those as values for hypermodel parameters.
+ def model_builder():
+    inputs = keras.Input(shape=(784))
+    x = layers.Dense(hp.Int([x + 20 for x in range(100)]),
+                    kernel_regularizer=keras.regularizers.l2(hp_alpha)(inputs)
+                    )
+    output = layers.Dense(1, activation='sigmoid')
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    model.compile(optimizer='adam',
+                  loss='sparse_categorical_crossentropy')
+    return model
 
 
 
- 
- What I'm imaginig is something where we can define a dictionary of functions. These functions would produce values in the right ranges, given random numbers from (0,1). The we specify the number of trials to run, pass in a hypermodel builder and the dictionary to a tuner and let it do the rest of the work, giving us the nicely scored output of other tuners from Keras.
-
- Something like this:
 
