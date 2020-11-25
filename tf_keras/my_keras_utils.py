@@ -29,7 +29,7 @@ def load_kaggle_mnist(data_file_name='data/train.csv',
 
 def df_split_to_numpy(df, target_label='label'):
     '''
-    Returns a tuple of numpy arrays of form (Features, labels) a Pandas DataFrame.
+    Returns a tuple (Features, labels) of numpy arrays of form a Pandas DataFrame.
 
     Useful as a helper function when you need to make several splits.
     '''
@@ -120,8 +120,8 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
 ## Keras callbacks
 
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
-  def on_train_end(*args, **kwargs):
-    IPython.display.clear_output(wait = True)
+    def on_train_end(self):
+        IPython.display.clear_output(wait = True)
 
 class TimedProgressUpdate(keras.callbacks.Callback):
     '''
