@@ -2,6 +2,14 @@
 
 This is a repository of stuff that I am currently or recently working on learning. (I also use it to share across multiple computers.)
 
+## Downloading and Use
+
+The repositories here aren't yet distributed. You can download them via Git:
+```
+git clone https://www.github.org/philosofool/<repository name>
+```
+The repositories here are free of malicious code, but are available as-is without warranty.
+
 ## [titanic](/titanic)
 
 There's [data set on Kaggle](https://www.kaggle.com/c/titanic); the morbid goal is to predict who will survive in the test set. As of 11/10/20, I scored in the 96.7th percentile with ~.799 accuracy. You can see the development of features and models in the [titanic.ipynb](titanic/titanic.ipynb).
