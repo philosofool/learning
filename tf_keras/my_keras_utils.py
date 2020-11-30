@@ -120,7 +120,7 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
 ## Keras callbacks
 
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
-    def on_train_end(self):
+    def on_train_end(self, logs=None):
         IPython.display.clear_output(wait = True)
 
 class TimedProgressUpdate(keras.callbacks.Callback):
