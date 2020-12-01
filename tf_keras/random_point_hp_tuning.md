@@ -39,13 +39,15 @@ for i in range(0,n):
 ```
 ### The Random Point search is better
 
- Why? There are two reasons. Suppose we run the grid search on 5 values for each parameter, we run 25 searches of the model on 5 values of lr and 5 values of alpha. Suppose we run the point search 25 times: we run 25 search on 25 values of alpha and 25 values of lr. That's a lot more information about the parameters, but still distributed in the same space as the grid. Thus, if alpha makes a big difference but lr doesn't, we learn a lot about best choices for alpha. 
+ Why? There are two reasons. If we run the grid search on 10 values for each parameter, we run 100 searches of the model on 10 values of lr and 10 values of alpha. Suppose we run the point search 100 times: we run 100 searches on 100 values of alpha and 100 values of lr. That's a lot more information about the parameters, but still distributed in the same space as the grid. Thus, if alpha makes a big difference but lr doesn't, we learn a lot about best choices for alpha. 
 
- Second, what if 25 searches is a lot of computation? Instead, we could run 10 searches of the random point sort, identity the region in which the parameters did the best and then search ten more times in that region. The complexity of a grid search grows geometrically with the number of parameters searched. The point search can be grown linearly by adjusting the number of searches, and then repeated once to find the right parameters in the parameter subpace that looks best. Thus, we can reduce computational demands with the point search.
+ Second, what if 100 searches is a lot of computation? Instead, we could run 25 searches of the random point sort, identify the region in which the parameters did the best and then search 25 more times in newly identified region. The complexity of a grid search grows geometrically with the number of parameters searched. The point search can be grown linearly by adjusting the number of searches, and then repeated once to find the right parameters in the parameter subpace that looks best. Thus, we can reduce computational demands with the point search.
 
- ## Can we implement this with Keras tuner
+ (By the way, the numbers in these examples are intended to be for illustration. Typically, one works with sizes )
 
- Yes we can! The process looks a little different from above. Above, we randomly select numbers from a space and build the models with those random numbers. Keras builds the space of models first and then selects a tuning process to apply to those models. The RandomSearch tuner will implement the above process by randomly selecting the models. 
+ ## Can we implement this with Keras tuner?
+
+ Yes we can! The process looks a little different from above. Above, we randomly select numbers from a space and build the models with those random numbers. Keras builds the space of models first and then selects a tuning process to apply to those models. The RandomSearch tuner will implement the above process by randomly selecting the models. To be a little more precise: Keras tuner uses a Hypterparamters object that specifies possible values for a hyperparameter and then selects them at random during a random search.
 
 ### Example with Keras Tuner
 
@@ -57,22 +59,40 @@ from tensorflow.keras import layers
 import kerastuner as kt
 
  ## specify a large range with a suitable distribution of features.
- hp_units = [x + 20 for x in range(100)]
- hp_alpha = [10**(-3*(x/1000)-1) for x in range(1000)]
+ hp_units = hp.Int(min_value = 40, 
+                max_value = 100, 
+                step = 1, 
+                sampling = 'linear')
+
+ hp_alpha = hp.Float(min_value = 10e-4,
+                    max_value = 10e-1,
+                    step = .00001,
+                    sampling = 'log')
 ```
-The last two lines generate distributions from which our hypermodel's parameters will be selected.
+These hyperparamter objects specify a range of integers and a range of floating points. The ```sampling``` argument tells keras what probability distribution to use for the selection. 'linear' means that they're equally probably, log means that each order of maginitude should be equally likely to be selected. (i.e., there will be as many in the neighborhood of 10e-4 as in the neighborhood of 10e-1.)
 ```
  ## set up a model with those as values for hypermodel parameters.
  def model_builder():
     inputs = keras.Input(shape=(784))
-    x = layers.Dense(hp.Int([x + 20 for x in range(100)]),
-                    kernel_regularizer=keras.regularizers.l2(hp_alpha)(inputs)
-                    )
+    x = layers.Dense(hp_units,
+                    kernel_regularizer=keras.regularizers.l2(hp_alpha)
+                )(inputs)
+                    
     output = layers.Dense(1, activation='sigmoid')
     model = keras.Model(inputs=inputs, outputs=outputs)
     model.compile(optimizer='adam',
                   loss='sparse_categorical_crossentropy')
     return model
+```
+Once we've established the space of the hyperparamters and the model builder that takes those as arguments, we need to create a RandomSearch tuner:
+```
+tuner  = RandomSearch(model_builder, 
+                    max_trials = 25
+                    )
+tuner.search(epochs = 40)
+```
+
+
 
 
 
