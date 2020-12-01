@@ -135,3 +135,6 @@ dmypy.json
 .vscode/
 .vscode
 .vscode/settings.json
+
+# Local keras tuner trials
+trials/
