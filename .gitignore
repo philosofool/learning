@@ -136,5 +136,5 @@ dmypy.json
 .vscode
 .vscode/settings.json
 
-# Local keras tuner trials
-trials/
+# Local files that I don't want to track go here:
+ignored/
