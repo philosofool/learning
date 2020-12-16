@@ -1,4 +1,8 @@
-import time, os
+import time
+import os
+import IPython
+from datetime import datetime
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -6,8 +10,8 @@ import tensorflow as tf
 from tensorflow import keras
 
 def load_kaggle_mnist(data_file_name='data/train.csv', 
-                        dev_size=2000, 
-                        test_size=2000,
+                        dev_size=3000, 
+                        test_size=3000,
                         random_state = None):
     '''
     Returns a tupple of train/dev/test splits of the labeled Kaggle MNIST data.
@@ -25,7 +29,7 @@ def load_kaggle_mnist(data_file_name='data/train.csv',
 
 def df_split_to_numpy(df, target_label='label'):
     '''
-    Returns a tuple of numpy arrays of form (Features, labels) a Pandas DataFrame.
+    Returns a tuple (Features, labels) of numpy arrays of form a Pandas DataFrame.
 
     Useful as a helper function when you need to make several splits.
     '''
@@ -112,3 +116,55 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
         results_dict[batch_size] = end - start
     
     return results_dict
+
+## Keras callbacks
+
+class ClearTrainingOutput(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, logs=None):
+        IPython.display.clear_output(wait = True)
+
+class TimedProgressUpdate(keras.callbacks.Callback):
+    '''
+    Prints a progress update at time intervals during training.
+
+    The updates occur following the first completed epoch of training after which at least update_interval
+    number of minutes have passed.
+
+    Parameters
+    ----------
+    update_interval: numeric
+        The number of minutes between updates. If update_interval is less than one, the fraction of a minute
+        between updates. The minimum value is 1/60 (~.016667)
+
+    Raises
+    ------
+    ValueError
+        If the update interval is less than 1/60, Raises a value error (updates can occur at most every one second.)
+
+    '''
+    def __init__(self, update_interval=1):
+        super(TimedProgressUpdate, self).__init__()
+        if update_interval < 1./60:
+            error_string = "The minimum update interval is one second. update_interval of {} implies {:.4f} seconds per update."
+            raise ValueError(error_string.format(update_interval, update_interval*60))
+        self.update_interval = update_interval
+
+    def on_train_begin(self, logs=None):
+        self.start_time = datetime.now()
+        self.last_update = self.start_time
+        print("Begin training of {} at {}. Progress updates every {:.1f} seconds."
+                .format(self.model.name, self.start_time.strftime("%H:%M:%S"),self.update_interval*60)
+            )
+
+    def on_epoch_end(self, epoch, logs=None):
+        now = datetime.now()
+        #print((now - self.last_update).seconds)
+        if (now - self.last_update).seconds >= 60*self.update_interval:
+            print("Starting training on  epoch {}. Current loss is {}.".format(epoch + 1,logs['loss']))
+            self.last_update = now
+
+    def on_train_end(self, logs=None):
+        end = datetime.now()
+        elapsed = end - self.start_time 
+        print("Finished fitting at {}. Elapsed time {}.".format(end.strftime("%H:%M:%S"), elapsed))
+
