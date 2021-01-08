@@ -130,3 +130,13 @@ dmypy.json
 
 # pickles
 .pickle
+
+# Visual Studio Files
+.vscode/
+.vscode
+.vscode/settings.json
+
+# Local files that I don't want to track go here:
+ignored/
+ig/
+
