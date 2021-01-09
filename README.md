@@ -20,4 +20,4 @@ Learning to work with Tensorflow and Keras for machine learning. Starting out on
 
 ## [notes](/notes)
 
-I'm saving notes from some Coursera classes here. Not all my classes have notebooks here. _The is no code for course assignments._ Sorry, but that sort of code sharing undermines us all.
+I'm saving notes from some Coursera classes here. Not all my classes have notebooks here. _The is no code for course assignments._ Sorry, but that sort of code sharing undermines us all. 
