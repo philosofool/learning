@@ -10,8 +10,8 @@ import tensorflow as tf
 from tensorflow import keras
 
 def load_kaggle_mnist(data_file_name='data/train.csv', 
-                        dev_size=2000, 
-                        test_size=2000,
+                        dev_size=3000, 
+                        test_size=3000,
                         random_state = None):
     '''
     Returns a tupple of train/dev/test splits of the labeled Kaggle MNIST data.
@@ -120,7 +120,7 @@ def find_optimal_batch_size(model, X, y, sizes, verbose = 1, reset_states = True
 ## Keras callbacks
 
 class ClearTrainingOutput(tf.keras.callbacks.Callback):
-    def on_train_end(self, logs=None):
+    def on_epoch_end(self, logs=None):
         IPython.display.clear_output(wait = True)
 
 class TimedProgressUpdate(keras.callbacks.Callback):
